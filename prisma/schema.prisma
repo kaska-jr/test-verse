@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// ORM, or Object-Relational Mapping, is a programming technique that simplifies database interactions by mapping objects in an object-oriented programming language to tables in a relational database, allowing developers to work with data using objects instead of writing raw SQL queries. 
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  name           String?
+  email          String?       @unique
+  emailVerified  Boolean?      @default(false)
+  image          String?
+  number         String?
+  username       String?       
+  hashedPassword String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  role           Role
+  accounts       Account[]
+  tradingAccount TradingAccount?
+  transactions   Transaction[]
+  investments    Investment[]    
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model TradingAccount {
+  id               String  @id @default(auto()) @map("_id") @db.ObjectId
+  balance          Float   @default(0.0)
+  total_Profit     Float   @default(0.0)
+  referral_bonus   Float   @default(0.0)
+  total_bonus      Float   @default(0.0)
+  total_deposit    Float   @default(0.0)
+  total_withdrawal Float   @default(0.0)
+  userId           String  @unique @db.ObjectId
+  user             User    @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  amount      Float    @default(0.0)
+  type        TransactionType
+  status      TransactionStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+  reference   String?  // External transaction reference (e.g., Stripe, PayPal)
+  description String?  // Optional transaction details
+
+  @@index([userId]) // Efficient querying by userId
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+  PROFIT
+}
+
+model InvestmentPlan {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String   @unique // e.g., "Basic Plan", "Premium Plan"
+  minAmount       Float    @default(10.0) // Minimum investment amount
+  maxAmount       Float?   // Optional max limit
+  durationType    DurationType // e.g., "days", "months", "years"
+  durationValueFrom   Int      // Duration value (e.g., 30 for days, 12 for months)
+  durationValueTo Int?     // Optional upper limit for duration
+  interestRate    Float    // % return on investment (e.g., 5% = 0.05)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  investments     Investment[] // Relation to user's active investments
+}
+
+enum DurationType {
+  DAYS
+  MONTHS
+  YEARS
+}
+
+model Investment {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @db.ObjectId
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId          String   @db.ObjectId
+  plan            InvestmentPlan @relation(fields: [planId], references: [id])
+  amountInvested  Float    
+  startDate       DateTime @default(now()) 
+  endDate         DateTime // Auto-calculated based on plan duration
+  profitEarned    Float    @default(0.0) // Calculated based on interest
+  status          InvestmentStatus @default(ACTIVE)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  @@index([userId])
+}
+
+enum InvestmentStatus {
+  ACTIVE
+  COMPLETED
+  CANCELED
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+
+
+
