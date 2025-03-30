@@ -22,5 +22,15 @@ export function middleware(req: NextRequestWithAuth) {
   });
 }
 export const config = {
-  matcher: ["/dashboard", "/admin", "/api/:path*", "/api/auth/:path*"], // Apply middleware to these paths
+  matcher: [
+    "/dashboard",
+    "/deposit",
+    "/withdrawal",
+    "/transactions",
+    "/investments",
+    "invest",
+    "/admin",
+    "/api/:path*",
+    "/api/auth/:path*",
+  ], // Apply middleware to these paths
 };

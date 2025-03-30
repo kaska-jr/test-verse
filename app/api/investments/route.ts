@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
-import getCurrentUser from "@/actions/getCurrentUser";
+import { getSession } from "../route";
 
 // User Only Api
 export async function POST(req: Request) {
   try {
-    const currentUser = await getCurrentUser();
-    if (!currentUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized user" }, { status: 401 });
     }
 
     const { userId, planId, amount } = await req.json();
@@ -103,8 +104,13 @@ export async function POST(req: Request) {
 // Fetch all investments for the current user
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized user" }, { status: 401 });
+    }
+
+    const { id: userId } = session.user;
 
     if (!userId) {
       return NextResponse.json(
@@ -121,7 +127,10 @@ export async function GET(req: Request) {
       },
     });
 
-    return NextResponse.json(investments, { status: 200 });
+    return NextResponse.json(
+      { message: "Investments fetched successfully", investments },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error fetching investments:", error);
     return NextResponse.json(

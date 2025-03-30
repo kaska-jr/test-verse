@@ -1,14 +1,14 @@
-import getCurrentUser from "@/actions/getCurrentUser";
 import prisma from "@/lib/prismadb";
 import { NextResponse } from "next/server";
+import { getSession } from "../route";
 
 // CREATE Transaction & Update TradingAccount
 export async function POST(request: Request) {
   try {
-    const currentUser = await getCurrentUser();
+    const session = await getSession();
 
-    if (!currentUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized user" }, { status: 401 });
     }
 
     const { amount, type, userId, reference, description } =
@@ -81,13 +81,15 @@ export async function POST(request: Request) {
   }
 }
 
-// GET Transactions with Pagination
+// GET User Transactions with Pagination
 export async function GET(req: Request) {
-  const currentUser = await getCurrentUser();
+  const session = await getSession();
 
-  if (!currentUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized user" }, { status: 401 });
   }
+
+  const userId = session.user.id;
 
   try {
     // Extract query params (default: page=1, limit=10)
@@ -105,8 +107,13 @@ export async function GET(req: Request) {
     // Calculate how many records to skip
     const skip = (page - 1) * limit;
 
-    // Fetch paginated transactions
     const transactions = await prisma.transaction.findMany({
+      where: {
+        userId: userId,
+      },
+      include: {
+        user: true, // Include user details if needed
+      },
       take: limit,
       skip: skip,
       orderBy: { createdAt: "desc" }, // Sort latest transactions first
@@ -141,10 +148,10 @@ export async function GET(req: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const currentUser = await getCurrentUser();
+    const session = await getSession();
 
-    if (!currentUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized user" }, { status: 401 });
     }
 
     const { userId, profit } = await request.json();

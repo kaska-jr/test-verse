@@ -1,11 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
-
-export async function getSession() {
-  return await getServerSession(authOptions);
-}
+import { getSession } from "../../route";
 
 //User and Admin
 export async function GET(
@@ -13,6 +8,12 @@ export async function GET(
   { params }: { params: { planid: string } }
 ) {
   try {
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const plan = await prisma.investmentPlan.findUnique({
       where: { id: params.planid },
     });
@@ -31,6 +32,14 @@ export async function PUT(
   { params }: { params: { planid: string } }
 ) {
   try {
+    const session = await getSession();
+
+    if (session && session.user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized, only admin can update an investment plan" },
+        { status: 401 }
+      );
+    }
     const {
       name,
       minAmount,

@@ -9,14 +9,6 @@ import {
   Settings,
   Wallet,
 } from "lucide-react";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -26,18 +18,17 @@ import {
 } from "@/components/ui/tooltip";
 import { VercelLogo } from "@/components/icons";
 import { BsBoundingBox } from "react-icons/bs";
-import getCurrentUser from "@/actions/getCurrentUser";
 import Providers from "@/components/layouts/providers";
 import { SearchInput } from "@/components/layouts/search";
 import { User } from "@/components/layouts/user";
 import { NavItem } from "@/components/layouts/nav-item";
+import useGetCurrentUser from "@/hooks/useGetCurrentUser";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
   return (
     <Providers>
       <main className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -45,21 +36,14 @@ export default async function DashboardLayout({
         <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
           <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
             <MobileNav />
-            {/* <DashboardBreadcrumb /> */}
             <img
               src="/assets/teslaverse-logo.png"
               alt="avatar"
               className="h-5 lg:h-8 w-auto hidden md:inline-block"
             />
             <SearchInput />
-            {user?.role === "ADMIN" && (
-              <Link href={"/admin"}>
-                <Button className="flex items-center gap-2">
-                  <BsBoundingBox /> <span>Admin Panel</span>
-                </Button>
-              </Link>
-            )}
-            <User currentUser={user as User} />
+
+            <User />
           </header>
           <main className="grid flex-1 items-start gap-2 p-4 sm:px-6 sm:py-6 md:gap-4 bg-muted/40">
             {children}
@@ -179,29 +163,5 @@ function MobileNav() {
         </nav>
       </SheetContent>
     </Sheet>
-  );
-}
-
-function DashboardBreadcrumb() {
-  return (
-    <Breadcrumb className="hidden md:flex">
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link href="#">Dashboard</Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link href="#">Products</Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbPage>All Products</BreadcrumbPage>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
   );
 }

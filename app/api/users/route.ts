@@ -1,28 +1,28 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
+import { getSession } from "../route";
 
 export async function GET(req: Request) {
-  const email = new URL(req.url).searchParams.get("email");
-
   try {
-    const currentUser = await prisma.user.findUnique({
-      where: {
-        email: email as string,
-      },
-    });
+    const session = await getSession();
 
-    if (!currentUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (session && session.user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized, only admin can fetch users" },
+        { status: 401 }
+      );
     }
 
-    const user = {
-      ...currentUser,
-      createdAt: currentUser.createdAt.toISOString(),
-      updatedAt: currentUser.updatedAt.toISOString(),
-      emailVerified: currentUser.emailVerified,
-    };
+    const users = await prisma.user.findMany({});
 
-    return NextResponse.json(user, { status: 200 });
+    if (!users) {
+      return NextResponse.json({ error: "No users found" }, { status: 404 });
+    }
+
+    return NextResponse.json(
+      { message: "users fetched successfully", users },
+      { status: 200 }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { error: "Failed to fetch users" },

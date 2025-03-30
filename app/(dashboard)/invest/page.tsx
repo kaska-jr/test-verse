@@ -1,16 +1,9 @@
-import getPlans from "@/actions/getPlans";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React from "react";
 import InvestWrapper from "./components/InvestWrapper";
-import getCurrentUser from "@/actions/getCurrentUser";
-import getTradingAccount from "@/actions/getTradingAccount";
 
 const Invest = async () => {
-  const investmentPlans = await getPlans();
-  const user = await getCurrentUser();
-  const tradingAccount = await getTradingAccount();
-
   return (
     <section>
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4">
@@ -25,11 +18,7 @@ const Invest = async () => {
           <Button>My Investments</Button>
         </Link>
       </div>
-      <InvestWrapper
-        investmentPlans={investmentPlans}
-        user={user}
-        tradingAccount={tradingAccount}
-      />
+      <InvestWrapper />
     </section>
   );
 };

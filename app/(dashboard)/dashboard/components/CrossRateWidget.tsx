@@ -1,4 +1,5 @@
 "use client";
+import { Card } from "@/components/ui/card";
 import { useEffect, useRef } from "react";
 import { text } from "stream/consumers";
 
@@ -26,21 +27,30 @@ const TradingViewWidget = () => {
   }, []);
 
   return (
-    <div className="tradingview-widget-container">
-      <div
-        ref={containerRef}
-        className="tradingview-widget-container__widget"
-      />
-      <div className="tradingview-widget-copyright">
-        <a
-          href="https://www.tradingview.com/"
-          rel="noopener nofollow"
-          target="_blank"
-        >
-          <span className="blue-text">Track all markets on TradingView</span>
-        </a>
+    <Card>
+      <div className="p-6">
+        <h1 className="mb-2 uppercase text-sm font-semibold">
+          Real time market data
+        </h1>{" "}
+        <div className="tradingview-widget-container">
+          <div
+            ref={containerRef}
+            className="tradingview-widget-container__widget"
+          />
+          <div className="tradingview-widget-copyright">
+            <a
+              href="https://www.tradingview.com/"
+              rel="noopener nofollow"
+              target="_blank"
+            >
+              <span className="blue-text">
+                Track all markets on TradingView
+              </span>
+            </a>
+          </div>
+        </div>
       </div>
-    </div>
+    </Card>
   );
 };
 

@@ -1,7 +1,6 @@
 "use client";
 import Heading from "@/components/Heading";
 import Input from "@/components/inputs/Input";
-import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
 import {
   emailValidationRules,

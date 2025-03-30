@@ -9,16 +9,11 @@ import { Input } from "@/components/ui/InputTag";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import useGetTradingAccount from "@/hooks/useGetTradingAccount";
+import useGetCurrentUser from "@/hooks/useGetCurrentUser";
+import useGetInvestmentsPlans from "@/hooks/useGetInvestmentsPlans";
 
-const InvestWrapper = ({
-  investmentPlans,
-  user,
-  tradingAccount,
-}: {
-  investmentPlans: any;
-  user: any;
-  tradingAccount: any;
-}) => {
+const InvestWrapper = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [amount, setAmount] = useState(""); // State for amount input
@@ -35,6 +30,10 @@ const InvestWrapper = ({
     setSelectedPlan(null);
     setAmount(""); // Reset amount input
   };
+
+  const { tradingAccount } = useGetTradingAccount() as any;
+  const { user } = useGetCurrentUser() as any;
+  const { userInvestmentPlans } = useGetInvestmentsPlans();
 
   const balance = tradingAccount.balance;
 
@@ -74,13 +73,13 @@ const InvestWrapper = ({
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mx-auto mt-10">
-        {investmentPlans.length === 0 && (
+        {userInvestmentPlans.length === 0 && (
           <div className="col-span-3">
             <p className="text-center">No Investments Found.</p>
           </div>
         )}
         {/* List of investments */}
-        {investmentPlans.map((investment: any) => (
+        {userInvestmentPlans.map((investment: any) => (
           <Card
             key={investment.name}
             className="mb-4 p-3 py-4 flex flex-col gap-5"

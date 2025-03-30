@@ -1,14 +1,15 @@
 import prisma from "@/lib/prismadb";
 import { NextResponse } from "next/server";
-import getCurrentUser from "@/actions/getCurrentUser";
+import { getSession } from "../route";
 
 export async function PUT(req: Request) {
   try {
-    const currentUser = await getCurrentUser();
+    const session = await getSession();
 
-    if (!currentUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized user" }, { status: 401 });
     }
+
     const { investmentId, profit } = await req.json();
 
     if (!investmentId || profit === undefined) {

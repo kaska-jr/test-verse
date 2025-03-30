@@ -26,20 +26,16 @@ import {
 } from "@/components/ui/tooltip";
 import { VercelLogo } from "@/components/icons";
 import { BsBoundingBox } from "react-icons/bs";
-import getCurrentUser from "@/actions/getCurrentUser";
 import Providers from "@/components/layouts/providers";
 import { SearchInput } from "@/components/layouts/search";
 import { User } from "@/components/layouts/user";
 import { NavItem } from "@/components/layouts/nav-item";
-import Redirect from "./components/Redirect";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
-
   return (
     <Providers>
       <main className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -54,14 +50,7 @@ export default async function DashboardLayout({
               className="h-5 lg:h-8 w-auto hidden md:inline-block"
             />
             <SearchInput />
-            {user?.role === "ADMIN" && (
-              <Link href={"/admin"}>
-                <Button className="flex items-center gap-2">
-                  <BsBoundingBox /> <span>Admin Panel</span>
-                </Button>
-              </Link>
-            )}
-            <User currentUser={user as any} />
+            <User />
           </header>
           <main className="grid flex-1 items-start gap-2 p-4 sm:px-6 sm:py-6 md:gap-4 bg-muted/40">
             {children}

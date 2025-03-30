@@ -1,20 +1,17 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
-import getCurrentUser from "@/actions/getCurrentUser";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { getSession } from "../route";
 
 // Admin only Api
 export async function POST(req: Request) {
   try {
-    const currentUser = await getCurrentUser();
-    if (!currentUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const session = await getSession();
 
-    if (currentUser && currentUser.role !== "ADMIN") {
+    if (session && session.user.role !== "ADMIN") {
       return NextResponse.json(
-        { error: "You are not authorized to be here..." },
+        { error: "Unauthorized, only admin can create an investment plan" },
         { status: 401 }
       );
     }
@@ -49,16 +46,12 @@ export async function POST(req: Request) {
   }
 }
 
-export async function getSession() {
-  return await getServerSession(authOptions);
-}
-
-//Admin Api
+//Admin and User Api
 export async function GET() {
   try {
-    const currentUser = await getSession();
+    const session = await getSession();
 
-    if (!currentUser) {
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

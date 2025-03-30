@@ -17,8 +17,6 @@ export async function GET(
       },
     });
 
-    console.log(tradingAccount, "tradingAccountu");
-
     if (!tradingAccount) {
       return NextResponse.json(
         { error: "User account not found" },
@@ -26,7 +24,10 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(tradingAccount, { status: 200 });
+    return NextResponse.json(
+      { message: "account fetched successfully", tradingAccount },
+      { status: 200 }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch trading account" },

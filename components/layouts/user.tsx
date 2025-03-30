@@ -5,21 +5,28 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOut } from "next-auth/react";
 import ClientOnly from "@/components/ClientOnly";
+import useGetCurrentUser from "@/hooks/useGetCurrentUser";
+import Link from "next/link";
+import { BsBoundingBox } from "react-icons/bs";
 
-export function User({ currentUser }: { currentUser: any }) {
-  // let session = await auth();
-  // let user = session?.user;
-
-  const { name, image, email } = currentUser;
+export function User() {
+  const { user } = useGetCurrentUser() as any;
+  const { name, image, email } = user;
 
   return (
     <>
+      {user?.role === "ADMIN" && (
+        <Link href={"/admin"}>
+          <Button className="flex items-center gap-2">
+            <BsBoundingBox /> <span>Admin Panel</span>
+          </Button>
+        </Link>
+      )}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button

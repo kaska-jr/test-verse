@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { Input as InputTag } from "@/components/ui/InputTag";
 import {
   Select,
@@ -14,17 +14,14 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
 import { formatNumber } from "@/lib/helper";
+import useGetInvestmentPlanById from "@/hooks/useGetInvestmentPlanById";
 
-const ManageInvestments = ({
-  investmentPlan,
-  planId,
-}: {
-  investmentPlan: any;
-  planId: string;
-}) => {
+const ManageInvestments = ({ planId }: { planId: string }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState("");
+
+  const { investmentPlan } = useGetInvestmentPlanById({ planId }) as any;
 
   const [depositDetails, setDepositDetails] = React.useState<any>({
     name: investmentPlan?.name || "",
@@ -35,6 +32,18 @@ const ManageInvestments = ({
     interestRate: investmentPlan?.interestRate || "",
     durationType: investmentPlan?.durationType || "DAYS",
   });
+
+  useEffect(() => {
+    setDepositDetails({
+      name: investmentPlan?.name || "",
+      minAmount: investmentPlan?.minAmount || "",
+      maxAmount: investmentPlan?.maxAmount || "",
+      durationValueFrom: investmentPlan?.durationValueFrom || "",
+      durationValueTo: investmentPlan?.durationValueTo || "",
+      interestRate: investmentPlan?.interestRate || "",
+      durationType: investmentPlan?.durationType || "DAYS",
+    });
+  }, [investmentPlan]);
 
   // Handle input change with formatting
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,183 +126,193 @@ const ManageInvestments = ({
   };
 
   return (
-    <section className="w-full flex flex-col gap-4">
-      <form
-        className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 "
-        onSubmit={onSubmit}
-      >
-        <div className="w-full">
-          <label className="mb-3 block text-sm font-medium text-muted-foreground">
-            Investment Name
-          </label>
-          <div className="relative h-fit">
-            <InputTag
-              name="name"
-              type="text"
-              value={depositDetails.name}
-              onChange={(e) => {
+    <>
+      <div className="mb-4">
+        <h1 className="text-base md:text-2xl font-semibold leading-none tracking-tight">
+          {investmentPlan?.name} Investment
+        </h1>
+        <p>{investmentPlan?.interestRate}% Return on Investment</p>
+      </div>{" "}
+      <section className="w-full flex flex-col gap-4">
+        <form
+          className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 "
+          onSubmit={onSubmit}
+        >
+          <div className="w-full">
+            <label className="mb-3 block text-sm font-medium text-muted-foreground">
+              Investment Name
+            </label>
+            <div className="relative h-fit">
+              <InputTag
+                name="name"
+                type="text"
+                value={depositDetails.name}
+                onChange={(e) => {
+                  setDepositDetails({
+                    ...depositDetails,
+                    name: e.target.value,
+                  });
+                }}
+                placeholder="Investment Plan Name"
+                className="w-full rounded-lg bg-background"
+              />
+            </div>
+          </div>
+
+          <div className="w-full">
+            <label className="mb-3 block text-sm font-medium text-muted-foreground">
+              Return of Investment (in %) ROI
+            </label>
+            <div className="relative h-fit">
+              <span className="absolute -translate-y-1/2 top-1/2 left-2 text-muted-foreground">
+                %
+              </span>
+              <InputTag
+                name="interestRate"
+                type="number"
+                value={depositDetails.interestRate}
+                onChange={(e) => {
+                  setDepositDetails({
+                    ...depositDetails,
+                    interestRate: e.target.value,
+                  });
+                }}
+                placeholder="Interest Rate"
+                className="w-full rounded-lg bg-background !px-6"
+              />
+            </div>
+          </div>
+
+          <div className="w-full">
+            <label className="mb-3 block text-sm font-medium text-muted-foreground">
+              Investments Duration Type
+            </label>
+            <Select
+              value={depositDetails.durationType}
+              onValueChange={(value) => {
                 setDepositDetails({
                   ...depositDetails,
-                  name: e.target.value,
+                  durationType: value,
                 });
               }}
-              placeholder="Investment Plan Name"
-              className="w-full rounded-lg bg-background"
-            />
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select an option" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="DAYS">Days</SelectItem>
+                <SelectItem value="MONTHS">Months</SelectItem>
+                <SelectItem value="YEARS">Years</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </div>
 
-        <div className="w-full">
-          <label className="mb-3 block text-sm font-medium text-muted-foreground">
-            Return of Investment (in %) ROI
-          </label>
-          <div className="relative h-fit">
-            <span className="absolute -translate-y-1/2 top-1/2 left-2 text-muted-foreground">
-              %
-            </span>
-            <InputTag
-              name="interestRate"
-              type="number"
-              value={depositDetails.interestRate}
-              onChange={(e) => {
-                setDepositDetails({
-                  ...depositDetails,
-                  interestRate: e.target.value,
-                });
-              }}
-              placeholder="Interest Rate"
-              className="w-full rounded-lg bg-background !px-6"
-            />
+          <div className="w-full">
+            <label className="mb-3 block text-sm font-medium text-muted-foreground">
+              Investment Duration From
+            </label>
+            <div className="relative h-fit">
+              <InputTag
+                name="durationValueFrom"
+                type="number"
+                value={depositDetails.durationValueFrom}
+                onChange={(e) => {
+                  setDepositDetails({
+                    ...depositDetails,
+                    durationValueFrom: e.target.value,
+                  });
+                }}
+                placeholder="Investment Duration From"
+                className="w-full rounded-lg bg-background"
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="w-full">
-          <label className="mb-3 block text-sm font-medium text-muted-foreground">
-            Investments Duration Type
-          </label>
-          <Select
-            value={depositDetails.durationType}
-            onValueChange={(value) => {
-              setDepositDetails({
-                ...depositDetails,
-                durationType: value,
-              });
-            }}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select an option" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="DAYS">Days</SelectItem>
-              <SelectItem value="MONTHS">Months</SelectItem>
-              <SelectItem value="YEARS">Years</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="w-full">
-          <label className="mb-3 block text-sm font-medium text-muted-foreground">
-            Investment Duration From
-          </label>
-          <div className="relative h-fit">
-            <InputTag
-              name="durationValueFrom"
-              type="number"
-              value={depositDetails.durationValueFrom}
-              onChange={(e) => {
-                setDepositDetails({
-                  ...depositDetails,
-                  durationValueFrom: e.target.value,
-                });
-              }}
-              placeholder="Investment Duration From"
-              className="w-full rounded-lg bg-background"
-            />
+          <div className="w-full">
+            <label className="mb-3 block text-sm font-medium text-muted-foreground">
+              Investment Duration To
+            </label>
+            <div className="relative h-fit">
+              <InputTag
+                name="durationValueFrom"
+                type="number"
+                value={depositDetails.durationValueTo}
+                onChange={(e) => {
+                  setDepositDetails({
+                    ...depositDetails,
+                    durationValueTo: e.target.value,
+                  });
+                }}
+                placeholder="Investment Duration From"
+                className="w-full rounded-lg bg-background"
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="w-full">
-          <label className="mb-3 block text-sm font-medium text-muted-foreground">
-            Investment Duration To
-          </label>
-          <div className="relative h-fit">
-            <InputTag
-              name="durationValueFrom"
-              type="number"
-              value={depositDetails.durationValueTo}
-              onChange={(e) => {
-                setDepositDetails({
-                  ...depositDetails,
-                  durationValueTo: e.target.value,
-                });
-              }}
-              placeholder="Investment Duration From"
-              className="w-full rounded-lg bg-background"
-            />
+          {/* Amount Input */}
+          <div className="w-full">
+            <label className="mb-3 block text-sm font-medium text-muted-foreground">
+              Enter Minimum Amount
+            </label>
+            <div className="relative h-fit">
+              <span className=" absolute -translate-y-1/2 top-1/2 left-2 text-muted-foreground">
+                $
+              </span>
+              <InputTag
+                name="minAmount"
+                type="text"
+                value={depositDetails.minAmount}
+                onChange={handleAmountChange}
+                placeholder="Minimum Amount"
+                className="w-full rounded-lg bg-background !px-6"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Amount Input */}
-        <div className="w-full">
-          <label className="mb-3 block text-sm font-medium text-muted-foreground">
-            Enter Minimum Amount
-          </label>
-          <div className="relative h-fit">
-            <span className=" absolute -translate-y-1/2 top-1/2 left-2 text-muted-foreground">
-              $
-            </span>
-            <InputTag
-              name="minAmount"
-              type="text"
-              value={depositDetails.minAmount}
-              onChange={handleAmountChange}
-              placeholder="Minimum Amount"
-              className="w-full rounded-lg bg-background !px-6"
-            />
+          <div className="w-full">
+            <label className="mb-3 block text-sm font-medium text-muted-foreground">
+              Enter Maximum Amount
+            </label>
+            <div className="relative h-fit">
+              <span className=" absolute -translate-y-1/2 top-1/2 left-2 text-muted-foreground">
+                $
+              </span>
+              <InputTag
+                name="maxAmount"
+                type="text"
+                value={depositDetails.maxAmount}
+                onChange={handleAmountChange}
+                placeholder="Maximum Amount"
+                className="w-full rounded-lg bg-background !px-6"
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="w-full">
-          <label className="mb-3 block text-sm font-medium text-muted-foreground">
-            Enter Maximum Amount
-          </label>
-          <div className="relative h-fit">
-            <span className=" absolute -translate-y-1/2 top-1/2 left-2 text-muted-foreground">
-              $
-            </span>
-            <InputTag
-              name="maxAmount"
-              type="text"
-              value={depositDetails.maxAmount}
-              onChange={handleAmountChange}
-              placeholder="Maximum Amount"
-              className="w-full rounded-lg bg-background !px-6"
-            />
+          {/* Submit Button */}
+          <div className="col-span-1 md:col-span-2 w-full flex flex-col gap-4">
+            <Button
+              className="w-full flex items-center justify-center"
+              type="submit"
+            >
+              {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+              <span>Update Investment Plan</span>
+            </Button>
+            {error && (
+              <span className="text-red-500 mt-2 text-xs">{error}</span>
+            )}
           </div>
-        </div>
-
-        {/* Submit Button */}
-        <div className="col-span-1 md:col-span-2 w-full flex flex-col gap-4">
+        </form>{" "}
+        <div className="w-full flex flex-col gap-4">
           <Button
-            className="w-full flex items-center justify-center"
+            className="w-full flex items-center justify-center bg-red-500 hover:bg-red-600 text-white"
             type="submit"
           >
-            {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-            <span>Update Investment Plan</span>
+            {false && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+            <span>Delete investment Plan</span>
           </Button>
-          {error && <span className="text-red-500 mt-2 text-xs">{error}</span>}
         </div>
-      </form>{" "}
-      <div className="w-full flex flex-col gap-4">
-        <Button
-          className="w-full flex items-center justify-center bg-red-500 hover:bg-red-600 text-white"
-          type="submit"
-        >
-          {false && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-          <span>Delete investment Plan</span>
-        </Button>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 

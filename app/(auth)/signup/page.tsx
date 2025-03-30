@@ -1,15 +1,7 @@
 "use client";
 import Heading from "@/components/Heading";
 import Input from "@/components/inputs/Input";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/SelectDropdown";
 import { Button } from "@/components/ui/button";
-// import useCountries from "@/hook/useCountries";
 import {
   emailValidationRules,
   nameValidationRules,
@@ -49,8 +41,6 @@ const Register = () => {
       console.log(error);
     }
   };
-
-  // const countries = useCountries().getAll() || [];
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -102,21 +92,6 @@ const Register = () => {
               errors={errors}
               required
             />
-            {/* <div className="w-full relative flex flex-col gap-3">
-              <label>Nationality</label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Your Nationality" />
-                </SelectTrigger>
-                <SelectContent>
-                  {countries.map((country) => (
-                    <SelectItem key={country.value} value={country.label}>
-                      {country.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div> */}
             <Input
               id="referral"
               placeholder="Your Referral ID"

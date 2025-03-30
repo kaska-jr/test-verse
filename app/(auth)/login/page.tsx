@@ -1,5 +1,4 @@
 "use client";
-import getCurrentUser from "@/actions/getCurrentUser";
 import Heading from "@/components/Heading";
 import Input from "@/components/inputs/Input";
 import { Button } from "@/components/ui/button";
