@@ -28,7 +28,7 @@ export const config = {
     "/withdrawal",
     "/transactions",
     "/investments",
-    "invest",
+    "/invest",
     "/admin",
     "/api/:path*",
     "/api/auth/:path*",
